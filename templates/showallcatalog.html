@@ -1,0 +1,39 @@
+<html>
+<head>
+
+</head>
+<body>
+  <h1>Categories</h1>
+  {% for sport in sports %}
+  <div>
+    <p><a href='{{url_for('showCatalogItems',sport_name=sport.category)}}'> {{sport.category}} </a></p>
+  </div>
+  {% endfor %}
+
+<div>
+
+<h1>Latest Items </h1>
+<a href='{{url_for('addItem')}}'>Add Item</a>
+
+<!--MESSAGE FLASHING EXAMPLE -->
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+
+<ul>
+{% for message in messages %}
+  <li><strong>{{message}}</strong></li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
+
+{% for equipment in equipments %}
+  <p>{{equipment.title}}
+    ({{equipment.catalog.category}})</p>
+{% endfor %}
+
+
+</div>
+
+</body>
+</html>

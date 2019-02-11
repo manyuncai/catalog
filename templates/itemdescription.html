@@ -1,0 +1,26 @@
+<html>
+<head>
+
+</head>
+<body>
+  <div>
+<h1>{{equipment.title}} </h1>
+
+<!--MESSAGE FLASHING "Item Edited" -->
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+
+<ul>
+{% for message in messages %}
+  <li><strong>{{message}}</strong></li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
+
+  <p>{{equipment.description}} </p>
+  <a href='{{url_for('editCatalogItems',sport_name=equipment.catalog.category,goods_name=equipment.title)}}'> Edit </a> </br>
+  <a href='{{url_for('deleteCatalogItems',sport_name=equipment.catalog.category,goods_name=equipment.title)}}'> Delete </a>
+</div>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<html>
+<body>
+<form action= "{{url_for('editCatalogItems', sport_name =equipmentToEdit.catalog.category ,goods_name=equipmentToEdit.title, sports=sports )}}" method = 'POST'>
+<h2> Edit Item </h2>
+<h3>{{equipmentToEdit.catalog.category}}:{{equipmentToEdit.title}} </h3>
+<p>Title</p>
+<input type = 'text' size='30' name = 'Title' placeholder = '{{equipmentToEdit.title}}'>
+<p>Description</p>
+<input type = 'text' size='500' name = 'Desciption' placeholder = '{{equipmentToEdit.description}}'>
+
+<p>Category</p>
+
+<select name= "Category">
+  {% for s in sports %}
+  <option type = 'text' size='30'  value="{{s.category}}"> {{s.category}}</option>
+  {% endfor %}
+</select>
+
+<p><input type='submit' value='Edit'></p>
+</form>
+<a href= '{{url_for('showCatalogItemsDescription', sport_name =equipmentToEdit.catalog.category ,goods_name=equipmentToEdit.title)}}'>Cancel</a>
+</body>
+</html>

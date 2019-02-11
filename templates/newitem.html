@@ -1,0 +1,37 @@
+<html>
+<head>
+
+</head>
+<body>
+
+<h1>Add New Item </h1>
+
+<div>
+<form action="{{ url_for('addItem')}}" method = 'post'>
+	<p>Title</p>
+	<input type = 'text' size='30' name = 'Title' >
+	<p>Description</p>
+	<input type = 'text' size='500' name = 'Desciption' >
+
+	<p>Category</p>
+
+	<select name= "Category">
+	  {% for s in sports %}
+	  <option type = 'text' size='30'  value="{{s.category}}"> {{s.category}}</option>
+	  {% endfor %}
+	</select>
+
+	<p><input type='submit' value='Add New Item'></p>
+	</form>
+
+
+
+
+</div>
+
+</body>
+
+
+
+
+</html>

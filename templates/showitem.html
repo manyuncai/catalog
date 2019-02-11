@@ -1,0 +1,33 @@
+
+<html>
+
+<body>
+
+<h1>{{sport.category}} Items ( {{countequipment}} items)</h1>
+
+<!--MESSAGE FLASHING for item deleted -->
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+
+<ul>
+{% for message in messages %}
+  <li><strong>{{message}}</strong></li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
+
+{% for equipment in equipments %}
+
+<div>
+
+<p><a href='{{url_for('showCatalogItemsDescription',sport_name=sport.category,goods_name=equipment.title)}}'>{{equipment.title}}</a></p>
+
+
+</div>
+
+
+{% endfor %}
+</body>
+
+</html>
