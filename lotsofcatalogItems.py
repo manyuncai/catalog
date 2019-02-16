@@ -21,7 +21,7 @@ session = DBSession()
 
 # Create dummy user
 
-User1 = User(name="Manyu Cai", email="manyucai@gmail.com",
+User1 = User(name="Manyu Cai", email="manyuncai@yahoo.com",
              picture='https://pbs.twimg.com/profile_images/2671170543/18debd694829ed78203a5a36dd364160_400x400.png')
 session.add(User1)
 session.commit()

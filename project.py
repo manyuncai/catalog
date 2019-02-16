@@ -19,21 +19,21 @@ import httplib2
 import json
 from flask import make_response
 import requests
-
+threaded = False
 CLIENT_ID = json.loads(
     open('client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Catalog App"
 app = Flask(__name__)
 
-#engine = create_engine('sqlite:///catalogdatabase.db')
+engine = create_engine('sqlite:///catalogdatabase.db')
 engine = create_engine('sqlite:///catalogdatabasewithusers.db')
 Base.metadata.bind=engine
 DBSession = sessionmaker(bind = engine)
 session = DBSession()
 
 
-item = session.query(Catalog).filter_by(category="Tennis").first()
-print item.id
+#item = session.query(Catalog).filter_by(category="Tennis").first()
+#print item.id
 #countItem= session.query(CatalogItem).filter_by(category_id=item.id).count()
 #print countItem
 #if Catalog.category=="Tennis":
@@ -45,14 +45,14 @@ print item.id
     #print item.catelog_item.title
     #print item.description
     #print item.category_id
-cat = session.query(CatalogItem)
-cat=sort_query(cat,'-item_id')
-#cat = session.query(CatalogItem).filter_by(title='Ball' ).all()
+#cat = session.query(User)
+#cat=sort_query(cat,'-item_id')
+cat = session.query(User).all()
 for c in cat:
-    print c.title
-    print c.description
-    print c.catalog.category
-    print c.item_id
+    print c.name
+    print c.email
+    #print c.catalog.category
+    #print c.item_id
 
 @app.route('/login')
 @app.route('/catalog/login')
@@ -71,7 +71,7 @@ def gconnect():
         return response
     # obtain authorization code
     code=request.data
-
+    print "session check"
     try:
         #upgradde the authorizatiion code into a credential object
         oauth_flow=flow_from_clientsecrets('client_secrets.json', scope='')
@@ -83,6 +83,7 @@ def gconnect():
         response.headers['Content-Type']='application/json'
         return response
     #check that the access token is valid
+    print "access token check"
     access_token = credentials.access_token
     url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s'
             % access_token)
@@ -95,6 +96,7 @@ def gconnect():
         return response
 
     # Verify that the access token is used for the intended user.
+    print "verify token user"
     gplus_id = credentials.id_token['sub']
     if result['user_id'] != gplus_id:
         response = make_response(
@@ -103,6 +105,7 @@ def gconnect():
         return response
 
     # Verify that the access token is valid for this app.
+    print "verify token app"
     if result['issued_to'] != CLIENT_ID:
         response= make_response(
             json.dumps("Token's client ID does not match apps's."), 401)
@@ -118,25 +121,30 @@ def gconnect():
         return response
 
     # Store the access token in the session for later use.
+    print "store token"
     login_session['access_token'] = credentials.access_token
     login_session['gplus_id'] = gplus_id
 
     # Get user info
+    print "get user info"
     userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
     params = {'access_token': credentials.access_token, 'alt':'json'}
     answer = requests.get(userinfo_url, params=params)
 
     data = answer.json()
-
+    print "-==data==-"
+    print data
     login_session['username']=data['name']
     login_session['picture']=data['picture']
     login_session['email']=data['email']
     #see if user exists, if it doesn't make new one
     user_id = getUserID(login_session['email'])
+    print "-==user_id==-"
+    print user_id
     if not user_id:
         user_id = createUser(login_session)
     login_session['user_id']=user_id
-
+    print "output"
     output=''
     output += '<h1>Welcome,'
     output += login_session['username']
@@ -149,22 +157,43 @@ def gconnect():
     return output
 #helper function for user_id
 def createUser(login_session):
+    engine = create_engine('sqlite:///catalogdatabasewithusers.db')
+    Base.metadata.bind=engine
+    DBSession = sessionmaker(bind = engine)
+    session = DBSession()
     newUser = User(name=login_session['username'], email=login_session[
                    'email'], picture=login_session['picture'])
     session.add(newUser)
     session.commit()
     user = session.query(User).filter_by(email=login_session['email']).one()
     return user.id
+    session.close()
 
 def getUserInfo(user_id):
+    engine = create_engine('sqlite:///catalogdatabasewithusers.db')
+    Base.metadata.bind=engine
+    DBSession = sessionmaker(bind = engine)
+    session = DBSession()
+
     user = session.query(User).filter_by(id=user_id).one()
     return user
+    session.close()
 
 def getUserID(email):
+    engine = create_engine('sqlite:///catalogdatabasewithusers.db')
+    Base.metadata.bind=engine
+    DBSession = sessionmaker(bind = engine)
+    session = DBSession()
+
     try:
+        print "--getUserID--"
+        print email
         user = session.query(User).filter_by(email=email).one()
+        print user
+        session.close()
         return user.id
     except:
+        session.close()
         return None
 
 # DISCONNECT - Revoke a current user's token and reset their login_session
@@ -192,11 +221,16 @@ def gdisconnect():
         del login_session['picture']
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
-        return response
+        #return response
+        print "sucessfully disconnected"
+        print response
+        return redirect(url_for('showCatalog'))
     else:
         response = make_response(json.dumps('Failed to revoke token for given user.', 400))
         response.headers['Content-Type'] = 'application/json'
-        return response
+        #return response
+
+        return redirect(url_for('showCatalog'))
 
 
 
@@ -210,9 +244,11 @@ def showCatalog():
     Base.metadata.bind=engine
     DBSession = sessionmaker(bind = engine)
     session = DBSession()
-    sports = session.query(Catalog).all()
+    sports = session.query(Catalog)
+    sports = sort_query(sports,'category')
     equipments = session.query(CatalogItem)
     equipments = sort_query(equipments,'-item_id')
+    session.close()
     if 'username' not in login_session:
         return render_template('publicshowallcatalog.html', sports = sports, equipments=equipments)
     else:
@@ -221,6 +257,8 @@ def showCatalog():
 @app.route('/catalog/add/',
             methods=['GET', 'POST'])
 def addItem():
+    if 'username' not in login_session:
+        return redirect('/login')
     #engine = create_engine('sqlite:///catalogdatabase.db')
     engine = create_engine('sqlite:///catalogdatabasewithusers.db')
     Base.metadata.bind=engine
@@ -229,10 +267,20 @@ def addItem():
     sports = session.query(Catalog).all()
     equipments = session.query(CatalogItem).all()
     if request.method == 'POST':
-        if request.form['Category']:
+        if request.form['New Category']:
+            newCategory=Catalog(category=request.form['New Category'],
+            user_id=login_session['user_id'])
+            session.add(newCategory)
+            session.commit()
+            newEquipment=CatalogItem(title=request.form['Title'],
+            description=request.form['Desciption'],category_id=newCategory.id,
+            user_id=login_session['user_id'])
+        #if request.form['Category']:
+        else:
             itemCategory = session.query(Catalog).filter_by(category=request.form['Category']).first()
-        newEquipment=CatalogItem(title=request.form['Title'],
-        description=request.form['Desciption'],category_id=itemCategory.id)
+            newEquipment=CatalogItem(title=request.form['Title'],
+            description=request.form['Desciption'],category_id=itemCategory.id,
+            user_id=login_session['user_id'])
         session.add(newEquipment)
         session.commit()
         flash("New Item Created!")
@@ -249,10 +297,12 @@ def showCatalogItems(sport_name):
     Base.metadata.bind=engine
     DBSession = sessionmaker(bind = engine)
     session = DBSession()
+    sports = session.query(Catalog).all()
     sport = session.query(Catalog).filter_by(category = sport_name).first()
     countequipment =session.query(CatalogItem).filter_by(category_id=sport.id).count()
     equipments = session.query(CatalogItem).filter_by(category_id=sport.id).all()
-    return render_template('showitem.html', sport = sport, equipments=equipments, countequipment=countequipment)
+    session.close()
+    return render_template('showitem.html', sports=sports,sport = sport, equipments=equipments, countequipment=countequipment)
 
 @app.route('/catalog/<string:sport_name>/<string:goods_name>/')
 def showCatalogItemsDescription(sport_name,goods_name):
@@ -264,11 +314,11 @@ def showCatalogItemsDescription(sport_name,goods_name):
     sport = session.query(Catalog).filter_by(category = sport_name).first()
     equipments = session.query(CatalogItem).filter_by(category_id=sport.id).all()
     equipment = session.query(CatalogItem).filter_by(title=goods_name).first()
-
     if 'username' not in login_session:
-        return render_template('publicitemdescription.html',equipment=equipment)
+        return render_template('publicitemdescription.html',equipment=equipment,sport=sport)
     else:
-        return render_template('itemdescription.html', equipment=equipment)
+        return render_template('itemdescription.html', equipment=equipment,sport=sport)
+    session.close()
 
 @app.route('/catalog/<string:sport_name>/<string:goods_name>/edit/',
             methods=['GET', 'POST'])
@@ -282,6 +332,11 @@ def editCatalogItems(sport_name,goods_name):
     sport = session.query(Catalog).filter_by(category = sport_name).first()
     equipments = session.query(CatalogItem).filter_by(category_id=sport.id).all()
     equipmentToEdit = session.query(CatalogItem).filter_by(title=goods_name).first()
+    if 'username' not in login_session:
+        return redirect('/login')
+    if equipmentToEdit.user_id != login_session['user_id']:
+        return "<script>function myFunction() {alert('You are not authorized to edit this item. Please create your own item in order to edit.');}</script><body onload='myFunction()''>"
+
     if request.method == 'POST':
         if request.form['Title']:
             equipmentToEdit.title = request.form['Title']
@@ -303,6 +358,8 @@ def editCatalogItems(sport_name,goods_name):
 @app.route('/catalog/<string:sport_name>/<string:goods_name>/delete/',
             methods=['GET', 'POST'])
 def deleteCatalogItems(sport_name,goods_name):
+    if 'username' not in login_session:
+        return redirect('/login')
     #engine = create_engine('sqlite:///catalogdatabase.db')
     engine = create_engine('sqlite:///catalogdatabasewithusers.db')
     Base.metadata.bind=engine
@@ -320,6 +377,7 @@ def deleteCatalogItems(sport_name,goods_name):
         return render_template('deleteitem.html',equipmentToDelete=equipmentToDelete)
 # add Json route here
 @app.route('/catalog/JSON')
+@app.route('/catalog.json')
 def showCatalogJSON():
     #engine = create_engine('sqlite:///catalogdatabase.db')
     engine = create_engine('sqlite:///catalogdatabasewithusers.db')
@@ -329,11 +387,13 @@ def showCatalogJSON():
     sports = session.query(Catalog).all()
     equipments = session.query(CatalogItem)
     equipments = sort_query(equipments,'-item_id')
+    session.close()
     #return render_template('showallcatalog.html', sports = sports, equipments=equipments)
     return jsonify(categoryInCatalog=[i.serialize for i in sports],
                 catalogItem=[j.serialize for j in equipments])
 
+
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
     app.debug = True
-    app.run(host ='0.0.0', port =8000)
+    app.run(host ='0.0.0', port =8000,threaded=False)

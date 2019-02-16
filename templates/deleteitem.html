@@ -1,4 +1,6 @@
-<html>
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
 
 <body>
 <h1> Are you sure you want to delete "{{equipmentToDelete.title}}"in ({{equipmentToDelete.catalog.category}}) ? </h1>
@@ -14,5 +16,4 @@
 
 <a href = "{{ url_for('showCatalogItemsDescription', sport_name=equipmentToDelete.catalog.category, goods_name=equipmentToDelete.title)}}"> Cancel </a>
 </body>
-
-</html>
+{% endblock %}

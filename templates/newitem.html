@@ -1,37 +1,45 @@
-<html>
-<head>
-
-</head>
-<body>
-
-<h1>Add New Item </h1>
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+<header>
+	<script>
+		function showNewcategorybox(){
+			var selectBox =document.getElementById('category');
+			var userInput = selectBox.options[selectBox.selectedIndex].value;
+			if (userInput =='-') {
+				document.getElementById('newcategorybox').style.visibility = 'visible';
+			} else {
+				document.getElementById('newcategorybox').style.visibility = 'hidden';
+			}
+			return false;
+		}
+	</script>
+</header>
 
 <div>
 <form action="{{ url_for('addItem')}}" method = 'post'>
 	<p>Title</p>
 	<input type = 'text' size='30' name = 'Title' >
+	<p> </p>
 	<p>Description</p>
 	<input type = 'text' size='500' name = 'Desciption' >
-
+	<p> </p>
 	<p>Category</p>
 
-	<select name= "Category">
+	<select name= "Category" id ="category" onchange ="return showNewcategorybox();">
 	  {% for s in sports %}
 	  <option type = 'text' size='30'  value="{{s.category}}"> {{s.category}}</option>
 	  {% endfor %}
+		<option  type ='text' size='30' value="-"> New Category </option>
 	</select>
+	<br>
+	<div id="newcategorybox" style="visibility:hidden">
+		<input type = "text" name = "New Category" placeholder = '--Enter New Category--'>
 
+	</div>
 	<p><input type='submit' value='Add New Item'></p>
 	</form>
-
-
-
-
 </div>
 
 </body>
-
-
-
-
-</html>
+{% endblock %}

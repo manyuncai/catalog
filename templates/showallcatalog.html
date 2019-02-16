@@ -1,16 +1,18 @@
-<html>
-<head>
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
 
-</head>
 <body>
+  <div class="sidebar">
   <h1>Categories</h1>
   {% for sport in sports %}
-  <div>
-    <p><a href='{{url_for('showCatalogItems',sport_name=sport.category)}}'> {{sport.category}} </a></p>
-  </div>
+    <div>
+      <p><a href='{{url_for('showCatalogItems',sport_name=sport.category)}}'> {{sport.category}} </a></p>
+    </div>
   {% endfor %}
+  </div>
 
-<div>
+<div class="content">
 
 <h1>Latest Items </h1>
 <a href='{{url_for('addItem')}}'>Add Item</a>
@@ -28,12 +30,12 @@
 {% endwith %}
 
 {% for equipment in equipments %}
-  <p>{{equipment.title}}
-    ({{equipment.catalog.category}})</p>
+  <p>{{equipment.title}} <span class="categorycolor">
+    ({{equipment.catalog.category}})</span> </p>
 {% endfor %}
 
 
 </div>
 
 </body>
-</html>
+{% endblock %}

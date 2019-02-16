@@ -1,10 +1,9 @@
-<html>
-<head>
-
-</head>
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
 <body>
   <div>
-<h1>{{equipment.title}} </h1>
+<h1>{{equipment.title}} <span class="categorycolor">({{sport.category}}) </span></h1>
 
 <!--MESSAGE FLASHING "Item Edited" -->
 {% with messages = get_flashed_messages() %}
@@ -19,8 +18,8 @@
 {% endwith %}
 
   <p>{{equipment.description}} </p>
-  <a href='{{url_for('editCatalogItems',sport_name=equipment.catalog.category,goods_name=equipment.title)}}'> Edit </a> </br>
-  <a href='{{url_for('deleteCatalogItems',sport_name=equipment.catalog.category,goods_name=equipment.title)}}'> Delete </a>
+  <a href='{{url_for('editCatalogItems',sport_name=equipment.catalog.category,goods_name=equipment.title)}}'> Edit </a> <span> |
+  <a href='{{url_for('deleteCatalogItems',sport_name=equipment.catalog.category,goods_name=equipment.title)}}'> Delete </a></span>
 </div>
 </body>
-</html>
+{% endblock %}

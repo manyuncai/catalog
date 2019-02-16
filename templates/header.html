@@ -1,0 +1,12 @@
+<!-- Load an icon library -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+
+<div class="navbar">
+  <a class="active" href="{{url_for('showCatalog')}}"><i class="fa fa-fw fa-home"></i> Catalog App</a>
+{% if 'username' not in session %}
+<a href="{{url_for('showLogin')}}"><i class="fa fa-fw fa-user"></i> Login</a>
+{% else  %}
+<a href="{{url_for('gdisconnect')}}"><i class="fa fa-fw fa-user"></i> Logout</a>
+{% endif %}
+</div>

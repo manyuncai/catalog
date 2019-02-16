@@ -1,7 +1,6 @@
-<html>
-<head>
-
-</head>
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
 <body>
   <div>
 <h1>{{equipment.title}} </h1>
@@ -38,4 +37,4 @@
   -->
 </div>
 </body>
-</html>
+{% endblock %}
