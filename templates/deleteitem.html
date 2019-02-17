@@ -3,7 +3,7 @@
 {% include "header.html" %}
 
 <body>
-<h1> Are you sure you want to delete "{{equipmentToDelete.title}}"in ({{equipmentToDelete.catalog.category}}) ? </h1>
+<h2> Are you sure you want to delete "{{equipmentToDelete.title}}"in ({{equipmentToDelete.catalog.category}}) ? </h2>
 
 <form action="{{ url_for('deleteCatalogItems',sport_name=equipmentToDelete.catalog.category, goods_name=equipmentToDelete.title)}}" method = 'post'>
 

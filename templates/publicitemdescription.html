@@ -2,9 +2,9 @@
 {% block content %}
 {% include "header.html" %}
 <body>
-  <div>
-<h1>{{equipment.title}} <span class="categorycolor">({{sport.category}}) </span></h1>
-<h2>public item description</h2>
+  <div class = "content">
+<h2>{{equipment.title}} <span class="categorycolor">({{sport.category}}) </span></h2>
+<h3> Item Description</h3>
 <!--MESSAGE FLASHING "Item Edited" -->
 {% with messages = get_flashed_messages() %}
 {% if messages %}

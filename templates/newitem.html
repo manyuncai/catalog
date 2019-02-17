@@ -16,7 +16,8 @@
 	</script>
 </header>
 
-<div>
+<div class="container">
+	<h2> Add New Item </h2>
 <form action="{{ url_for('addItem')}}" method = 'post'>
 	<p>Title</p>
 	<input type = 'text' size='30' name = 'Title' >
@@ -41,5 +42,4 @@
 	</form>
 </div>
 
-</body>
 {% endblock %}
