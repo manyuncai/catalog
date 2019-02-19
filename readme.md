@@ -53,8 +53,9 @@ session.add () # add record
 session.commit()
 session.close()
 ```
-
-
+### Json Endpoints
+* @app.route('/catalog/JSON') and @app.route('/catalog.json') provide Json endpoit for all catalog & items
+* @app.route('/catalog/<string:sport_name>/<string:goods_name>/JSON') & @app.route('/catalog/<string:sport_name>/<string:goods_name>/json') provides Json endpoint for a single item in the catalog.
 
 ### Contributing
 All comment and suggestions are welcome to make my project works better
